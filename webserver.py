@@ -1,8 +1,19 @@
 # coding=utf-8
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from database_setup import Restaurant, Base, MenuItem
 import urllib, sys
 import cgi
+
+
+
+engine = create_engine('sqlite:///restaurantmenu.db')
+Base.metadata.bind = engine
+
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
 
 class WebServerHandler(BaseHTTPRequestHandler):
 
@@ -12,10 +23,13 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
+                restaurants=session.query(Restaurant).all()
                 output = ""
                 output += "<html><body>"
-                output += "<h1>Hello!</h1>"
-                output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                for restaurant in restaurants:
+                    output += "<h2>"+restaurant.name+"</h2>"
+                # output += "<h1>Hello!</h1>"
+                # output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
