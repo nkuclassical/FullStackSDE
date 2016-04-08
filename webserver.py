@@ -48,6 +48,24 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                     self.wfile.write(output)
 
+            elif self.path.endswith("/delete"):
+                restaurantIDPath=self.path.split('/')[2]
+                myRestaurantQuery=session.query(Restaurant).filter_by(id=restaurantIDPath).one()
+                if myRestaurantQuery:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    output = "<html><body>"
+                    output += "<h1>"
+                    output += myRestaurantQuery.name
+                    output += "</h1>"
+                    output += "<form method='POST' enctype='multipart/form-data' action = '/restaurants/%s/delete' >" % restaurantIDPath
+                    output += "Confirm to Delete "+myRestaurantQuery.name+" ?"
+                    output += "<input type = 'submit' value = 'Delete'>"
+                    output += "</form>"
+                    output += "</body></html>"
+
+                    self.wfile.write(output)
 
             elif self.path.endswith("/restaurants") or self.path.endswith("/restaurants/"):
                 self.send_response(200)
@@ -58,9 +76,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "<html><body>"
                 output += '''<a href="/restaurants/new"<b>Create a New restaurant</b></a><p>'''
                 for restaurant in restaurants:
-                    output += "<h2>"+restaurant.name+"</h2><big><b>ID: </b>"+str(restaurant.id)+"</big><br /><small><a href='#'>Edit</a> <a href='#'>Delete</a></small><hr>"
-                # output += "<h1>Hello!</h1>"
-                # output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                    output += "<h2>"+restaurant.name+"</h2><big><b>ID: </b>"+str(restaurant.id)+"</big><br /><small><a href='/restaurants/"+str(restaurant.id)+"/edit'>Edit</a> <a href='/restaurants/"+str(restaurant.id)+"/delete'>Delete</a></small><hr>"
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
@@ -111,6 +127,17 @@ class WebServerHandler(BaseHTTPRequestHandler):
                         self.send_header('Location', '/restaurants')
                         self.end_headers()
 
+            elif self.path.endswith("/delete"):
+                restaurantIDPath = self.path.split("/")[2]
+                myRestaurantQuery = session.query(Restaurant).filter_by(id=restaurantIDPath).one()
+                if myRestaurantQuery != []:
+                    session.delete(myRestaurantQuery)
+                    session.commit()
+                    self.send_response(301)
+                    self.send_header('Content-type', 'text/html')
+                    self.send_header('Location', '/restaurants')
+                    self.end_headers()
+
 
 
         except:
@@ -122,7 +149,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
 def main():
     try:
-        port = 8078
+        port = 8003
         server = HTTPServer(('', port), WebServerHandler)
         print "Web Server running on port %s" % port
         server.serve_forever()
