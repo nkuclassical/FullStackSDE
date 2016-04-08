@@ -27,7 +27,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output = ""
                 output += "<html><body>"
                 for restaurant in restaurants:
-                    output += "<h2>"+restaurant.name+"</h2>"
+                    output += "<h2>"+restaurant.name+"</h2><small><a href='#'>Edit</a> <a href='#'>Delete</a></small><hr>"
                 # output += "<h1>Hello!</h1>"
                 # output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
