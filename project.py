@@ -2,7 +2,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, Base, MenuItem
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 
 import urllib, sys
 import cgi
@@ -29,6 +29,21 @@ def HelloWorld():
         output += '<hr>'
     return output
 
+# @app.route('/restaurant/<int:restaurant_id>/')
+# def restaurantMenu1(restaurant_id):
+# 	restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
+# 	items = session.query(MenuItem).filter_by(restaurant_id = restaurant_id)
+# 	output = ''
+# 	for i in items:
+# 		output += i.name
+# 		output += '</br>'
+# 		output += i.price
+# 		output += '</br>'
+# 		output += i.description
+# 		output += '</br>'
+# 		output += '</br>'
+
+	# return output
 @app.route('/restaurants/<int:restaurant_id>/')
 def restaurantMenu(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -36,14 +51,21 @@ def restaurantMenu(restaurant_id):
     return render_template('menu.html',restaurant=restaurant,items=items)
 
 
-@app.route('/restaurant/<int:restaurant_id>/new',methods=['GET','POST'])
+@app.route('/restaurants/<int:restaurant_id>/new',methods=['GET','POST'])
 def newMenuItem(restaurant_id):
-    return "page to create a new menu item!"
-@app.route('/restaurant/<int:restaurant_id>/<int:menu_id>/edit')
+    if request.method == 'POST':
+        newItem=MenuItem(name=request.form['name'],restaurant_id=restaurant_id, description=request.form['description'],price=request.form['price'])
+        session.add(newItem)
+        session.commit()
+        return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
+    else:
+        return render_template('newMenuItem.html',restaurant_id=restaurant_id)
+
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit')
 def editMenuItem(restaurant_id,menu_id):
     return "page to edit a new menu item for such restaurant"
 
-@app.route('/restaurant/<int:restaurant_id>/<int:menu_id>/delete')
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete')
 def deleteMenuItem(restaurant_id,menu_id):
     return "page to delete a new menu item for such restaurant"
 
