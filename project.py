@@ -2,7 +2,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, Base, MenuItem
-from flask import Flask
+from flask import Flask, render_template
 
 import urllib, sys
 import cgi
@@ -33,17 +33,19 @@ def HelloWorld():
 def restaurantMenu(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     items = session.query(MenuItem).filter_by(restaurant_id=restaurant.id)
-    output = ''
-    for i in items:
-        output += i.name
-        output += '</br>'
-        output += i.price
-        output += '</br>'
-        output += i.description
-        output += '</br>'
-        output += '</br>'
-    return output
+    return render_template('menu.html',restaurant=restaurant,items=items)
 
+
+@app.route('/restaurant/<int:restaurant_id>/new',methods=['GET','POST'])
+def newMenuItem(restaurant_id):
+    return "page to create a new menu item!"
+@app.route('/restaurant/<int:restaurant_id>/<int:menu_id>/edit')
+def editMenuItem(restaurant_id,menu_id):
+    return "page to edit a new menu item for such restaurant"
+
+@app.route('/restaurant/<int:restaurant_id>/<int:menu_id>/delete')
+def deleteMenuItem(restaurant_id,menu_id):
+    return "page to delete a new menu item for such restaurant"
 
 if __name__ == '__main__':
     app.debug = True
