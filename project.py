@@ -2,7 +2,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Restaurant, Base, MenuItem
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 import urllib, sys
 import cgi
@@ -71,6 +71,11 @@ def deleteMenuItem(restaurant_id,menu_id):
         return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
     else:
         return render_template('deletemenuitem.html',restaurant_id=restaurant_id,item=deleteItem)
+
+@app.route('/restaurants/<int:restaurant_id>/menu/json')
+def restaurantMenuJSON(restaurant_id):
+    items=session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+    return jsonify(MenuItems=[i.serialize for i in items])
 
 if __name__ == '__main__':
     app.debug = True
