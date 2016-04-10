@@ -29,21 +29,6 @@ def HelloWorld():
         output += '<hr>'
     return output
 
-# @app.route('/restaurant/<int:restaurant_id>/')
-# def restaurantMenu1(restaurant_id):
-# 	restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
-# 	items = session.query(MenuItem).filter_by(restaurant_id = restaurant_id)
-# 	output = ''
-# 	for i in items:
-# 		output += i.name
-# 		output += '</br>'
-# 		output += i.price
-# 		output += '</br>'
-# 		output += i.description
-# 		output += '</br>'
-# 		output += '</br>'
-
-	# return output
 @app.route('/restaurants/<int:restaurant_id>/')
 def restaurantMenu(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -61,9 +46,18 @@ def newMenuItem(restaurant_id):
     else:
         return render_template('newMenuItem.html',restaurant_id=restaurant_id)
 
-@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit')
+
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit',methods=['GET','POST'])
 def editMenuItem(restaurant_id,menu_id):
-    return "page to edit a new menu item for such restaurant"
+    editedItem=session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method=='POST':
+        if request.form['name']:
+            editedItem.name=request.form['name']
+        session.add(editedItem)
+        session.commit()
+        return redirect(url_for('restaurantMenu',restaurant_id=restaurant_id))
+    else:
+        return render_template('editMenuItem.html',restaurant_id=restaurant_id,menu_id=menu_id,item=editedItem)
 
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete')
 def deleteMenuItem(restaurant_id,menu_id):
