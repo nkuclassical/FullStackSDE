@@ -77,6 +77,11 @@ def restaurantMenuJSON(restaurant_id):
     items=session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
     return jsonify(MenuItems=[i.serialize for i in items])
 
+@app.route('/restaurants/<int:restaurant_id>/menu/<int:menu_id>/json')
+def menuJSON(restaurant_id,menu_id):
+    items=session.query(MenuItem).filter_by(id=menu_id).one()
+    return jsonify(items.serialize)
+
 if __name__ == '__main__':
     app.debug = True
     app.secret_key = 'super_secret_key'
